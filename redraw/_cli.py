@@ -2,6 +2,9 @@ import argparse
 import signal
 import sys
 
+from pkg_resources import get_distribution
+
+import requests
 from redraw._cli_core import CliCore
 from redraw._common_utils import exit_with_code
 from redraw._logger import init_redraw_cli_logger
@@ -75,17 +78,20 @@ def _sigint_handler(signum, frame):
     LOG.debug(f"SIGNAL {signum} caught at {frame}")
     exit_with_code(1)
 
+
 def get_pip_version(url):
     """
     Given the url to PypI package info url returns the current live version
     """
     return requests.get(url, timeout=5.0).json()["info"]["version"]
 
+
 def get_installed_version():
     try:
         return get_distribution(NAME).version
     except Exception:  # pylint: disable=broad-except
         return "[local source] no pip module installed"
+
 
 def demo(cli_core_class=CliCore, exit_func=exit_with_code):
     signal.signal(signal.SIGINT, _sigint_handler)
@@ -103,6 +109,7 @@ def demo(cli_core_class=CliCore, exit_func=exit_with_code):
     except Exception as e:  # pylint: disable=broad-except
         LOG.error(str(e), exc_info=_print_tracebacks(log_level))
         exit_func(1)
+
 
 def main():
     pass
